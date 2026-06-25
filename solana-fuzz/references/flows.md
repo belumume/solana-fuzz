@@ -40,4 +40,4 @@ Choose ranges that straddle the program's boundaries. The vault bug only trigger
 
 ## Self-contained flow vs cross-flow state
 
-The simplest robust pattern is one self-contained scenario per flow: allocate fresh accounts, run the full setup plus the operation under test, then check the invariant. That avoids any ordering assumptions between flows. See `examples/vault/trident-tests/fuzz_0/test_fuzz.rs`. For genuinely stateful sequences, allocate the accounts in `#[init]` and reuse them across flows within the iteration.
+The simplest robust pattern is one self-contained scenario per flow: allocate fresh accounts, run the full setup plus the operation under test, then check the invariant. That avoids any ordering assumptions between flows. See `../examples/vault/trident-tests/fuzz_0/test_fuzz.rs`. For genuinely stateful sequences, allocate the accounts in `#[init]` and reuse them across flows within the iteration.

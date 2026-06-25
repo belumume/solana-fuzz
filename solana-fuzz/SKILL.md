@@ -1,17 +1,13 @@
 ---
 name: solana-fuzz
 description: >
-  Generate Trident property-based fuzz tests and invariant checks for Solana
-  programs (Anchor and native). Use when a user asks to "fuzz my Solana program",
-  "write a Trident fuzz test", "add invariant checks", "set up fuzzing", "property
-  test this program", "find runtime bugs my tests miss", "harden before mainnet",
-  or "add regression fuzzing across versions". Trident is the Solana Foundation
-  supported fuzzer by Ackee Blockchain. This skill scaffolds the
-  trident-tests/fuzz_0 layout, writes the #[init]/#[flow]/#[end] flow methods that
-  drive instructions with random inputs, defines fuzz accounts and PDA seeds, and
-  writes capture-before/after invariant methods that catch logic errors that
-  example-based tests (LiteSVM, Mollusk, Surfpool) never exercise. This is dynamic,
-  dev-loop property testing, not a static security auditor.
+  Use when fuzzing a Solana program or writing a Trident fuzz test: property and
+  invariant testing of a program's state transitions, finding runtime logic bugs
+  that happy-path and example-based tests (LiteSVM, Mollusk, Surfpool) miss,
+  hardening an Anchor or native program before a mainnet deploy, or adding
+  regression fuzzing across program versions. Trident is the Solana Foundation
+  supported fuzzer by Ackee Blockchain. Dynamic, dev-loop property testing, not a
+  static security auditor.
 license: MIT
 compatibility: "claude-code, codex"
 metadata:
@@ -21,7 +17,7 @@ metadata:
   positioning: "Complements the kit's example-based testing (LiteSVM/Mollusk/Surfpool); distinct from static security-audit skills."
 ---
 
-# solana-fuzz — Trident fuzzing and invariants for Solana programs
+# solana-fuzz: Trident fuzzing and invariants for Solana programs
 
 Turn a Solana program into a property-tested one. This skill writes Trident fuzz
 tests: it scaffolds the test layout, generates the flow methods that drive your
@@ -107,34 +103,24 @@ expected change in a dedicated invariant method. Handle expected failures
 explicitly instead of swallowing them.
 
 ```rust
-#[flow]
-fn transfer_flow(&mut self) {
-    let account = self.fuzz_accounts.user_account.get(&mut self.trident);
-    let before = self.trident.get_account_with_type::<UserAccount>(&account, 8).expect("missing");
-
-    let ix = create_transfer_instruction(account, 100);
-    let res = self.trident.process_transaction(&[ix], Some("transfer"));
-
-    if res.is_success() {
-        let after = self.trident.get_account_with_type::<UserAccount>(&account, 8).expect("missing");
-        self.transfer_invariant(before, after, 100);
-    } else {
-        assert!(res.is_custom_error_with_code(6001_u32), "expected insufficient-funds error");
-    }
-}
-
-fn transfer_invariant(&mut self, before: UserAccount, after: UserAccount, amount: u64) {
-    assert_eq!(after.balance, before.balance - amount, "balance must drop by the transfer amount");
+let before = self.trident.get_account_with_type::<MyAccount>(&addr, 8)?; // 8 = Anchor discriminator
+let res = self.trident.process_transaction(&[ix], Some("op"));
+if res.is_success() {
+    let after = self.trident.get_account_with_type::<MyAccount>(&addr, 8).unwrap();
+    assert!(/* domain property over before/after */, "describe the violation");
 }
 ```
 
-A good invariant takes before/after state, asserts one specific property with a
-descriptive message, and covers both the success and the expected-failure path.
+Gate the assert on `is_success()` so a correctly-rejected transaction is not counted
+as a violation. The full worked invariant method, the expected-failure handling, and
+the mandatory `--with-exit-code` flag (without it, a failing assert is silently
+swallowed in parallel mode) are in `references/invariants.md` and the runnable
+`examples/vault/`.
 
 ## Operating procedure (when invoked)
 
-1. Detect the program: read `Anchor.toml` and the IDL; list the instructions and
-   the accounts each touches.
+1. Detect the program: read `Anchor.toml` and the IDL (for a native program, read its
+   instruction enum and entrypoint instead); list the instructions and the accounts each touches.
 2. Scaffold the `trident-tests/fuzz_0/` layout (or use the CLI init flow per
    `references/setup.md`).
 3. Define `fuzz_accounts` (signers and PDAs with their real seeds) in
@@ -154,15 +140,18 @@ first; the API is version-specific.
 
 ## References (progressive disclosure)
 
-- `references/setup.md` — install, init, `Trident.toml`, prerequisites, run command
-- `references/flows.md` — `#[init]`/`#[flow]`/`#[end]`, driving instructions, random inputs, time control
-- `references/invariants.md` — capture-before/after, invariant methods, expected-failure handling
-- `references/accounts.md` — `fuzz_accounts`, PDA seeds, `get_account_with_type`, discriminator offset
-- `references/regression.md` — comparing program behavior across versions
-- `../examples/vault/` — the verified, runnable worked example: a tiny Anchor program
-  with a planted balance-invariant bug plus a Trident suite that catches it (red), and
-  the one-line fix that makes it pass (green). This is the authoritative, compiled-and-
-  fuzzed reference for the exact v0.12 API.
+- `references/setup.md`: install, init, `Trident.toml`, prerequisites, run command
+- `references/flows.md`: `#[init]`/`#[flow]`/`#[end]`, driving instructions, random inputs, time control
+- `references/invariants.md`: capture-before/after, invariant methods, expected-failure handling
+- `references/accounts.md`: `fuzz_accounts`, PDA seeds, `get_account_with_type`, discriminator offset
+- `references/regression.md`: comparing program behavior across versions
+
+## Worked example
+
+`examples/vault/` is the verified, runnable reference: a tiny Anchor program with a
+planted balance-invariant bug plus a Trident suite that catches it (red), and the
+one-line fix that makes it pass (green). It is compiled and fuzzed against the exact
+v0.12 API; when in doubt about a call, copy from there.
 
 ## Provenance
 

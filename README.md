@@ -20,7 +20,7 @@ Install it like any agent skill (drop `solana-fuzz/` into your skills directory,
 
 ## Worked example: a vault the fuzzer breaks
 
-[`examples/vault/`](examples/vault/) is a complete, runnable proof. It is a tiny Anchor program with a bug planted on purpose, plus a Trident suite that catches it.
+[`solana-fuzz/examples/vault/`](solana-fuzz/examples/vault/) is a complete, runnable proof. It is a tiny Anchor program with a bug planted on purpose, plus a Trident suite that catches it.
 
 The bug is in `withdraw`: it subtracts without checking the balance.
 
@@ -61,7 +61,7 @@ The same fuzz run after the one-line fix (green): 24,706 valid withdrawals pass 
 The one-command proof, reproducible on a fresh clone:
 
 ```bash
-cd examples/vault
+cd solana-fuzz/examples/vault
 anchor build                      # build the program (see solana-fuzz/references/setup.md for toolchain)
 cd trident-tests
 trident fuzz run fuzz_0 --with-exit-code   # finds the planted invariant violation (red)
