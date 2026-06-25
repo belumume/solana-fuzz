@@ -1,0 +1,36 @@
+# Rust / Anchor / Solana build artifacts
+target/
+**/target/
+.anchor/
+test-ledger/
+**/*.rs.bk
+
+# Trident fuzzing artifacts
+trident-tests/**/target/
+**/trident-genesis/
+**/fuzzing_failures/
+*.crash
+
+# Node (Anchor scaffolds a JS test harness we don't use)
+node_modules/
+.yarn/
+yarn-error.log
+package-lock.json
+
+# Keypairs and secrets — never commit
+*-keypair.json
+*.pem
+*.key
+id.json
+
+# AI session transcript (grant proof, kept locally, not in the public repo)
+claude-session.jsonl
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# internal session compound, not public skill docs
+docs/solutions/
