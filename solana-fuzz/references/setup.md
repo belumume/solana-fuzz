@@ -20,7 +20,7 @@ anchor init <name>                 # scaffold the Anchor workspace
 # ... write the program, then:
 anchor build                       # compiles to SBF + generates target/idl/<name>.json
 trident init                       # adds Trident.toml + trident-tests/fuzz_0/ (reads the IDL)
-trident fuzz run fuzz_0            # run the fuzzer
+trident fuzz run fuzz_0 --with-exit-code   # run the fuzzer (--with-exit-code is mandatory; see invariants.md)
 trident fuzz debug fuzz_0 <SEED>   # replay a single crashing seed
 trident fuzz add                   # add another fuzz test template
 ```

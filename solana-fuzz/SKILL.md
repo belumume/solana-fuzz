@@ -86,8 +86,8 @@ Anchored to the repo source, not memory:
 
 - Drive an instruction: build it, then
   `self.trident.process_transaction(&[ix], Some("Label"))`, which returns a result
-  with `.is_success()`, `.get_transaction_timestamp()`, and
-  `.is_custom_error_with_code(<code>_u32)`.
+  with `.is_success()` and `.get_transaction_timestamp()`. Gate invariant checks on
+  `.is_success()`: a rejected transaction is the expected-failure path, not a violation.
 - Random inputs: `self.trident.random_from_range(0..u8::MAX)`. Fund a signer:
   `self.trident.airdrop(&addr, 10 * LAMPORTS_PER_SOL)`. Advance the clock:
   `self.trident.forward_in_time(n)`.
@@ -103,11 +103,15 @@ expected change in a dedicated invariant method. Handle expected failures
 explicitly instead of swallowing them.
 
 ```rust
-let before = self.trident.get_account_with_type::<MyAccount>(&addr, 8)?; // 8 = Anchor discriminator
+let before = match self.trident.get_account_with_type::<MyAccount>(&addr, 8) {
+    Some(v) => v,            // 8 = Anchor discriminator; None until the account is initialized
+    None => return,
+};
 let res = self.trident.process_transaction(&[ix], Some("op"));
 if res.is_success() {
-    let after = self.trident.get_account_with_type::<MyAccount>(&addr, 8).unwrap();
-    assert!(/* domain property over before/after */, "describe the violation");
+    if let Some(after) = self.trident.get_account_with_type::<MyAccount>(&addr, 8) {
+        assert!(/* domain property over before/after */, "describe the violation");
+    }
 }
 ```
 
@@ -150,7 +154,7 @@ first; the API is version-specific.
 
 `examples/vault/` is the verified, runnable reference: a tiny Anchor program with a
 planted balance-invariant bug plus a Trident suite that catches it (red), and the
-one-line fix that makes it pass (green). It is compiled and fuzzed against the exact
+`require!` + `checked_sub` fix that makes it pass (green). It is compiled and fuzzed against the exact
 v0.12 API; when in doubt about a call, copy from there.
 
 ## Provenance
