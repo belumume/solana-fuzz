@@ -16,7 +16,7 @@ The skill lives in [`solana-fuzz/SKILL.md`](solana-fuzz/SKILL.md) with progressi
 - `accounts.md`: fuzz accounts, PDA seeds, reading typed state
 - `regression.md`: comparing behavior across program versions
 
-Install it like any agent skill (drop `solana-fuzz/` into your skills directory, or reference `SKILL.md` directly).
+Install it with the bundled [`install.sh`](install.sh) (copies `solana-fuzz/` into your skills directory; set `SKILLS_DIR=...` to choose where, `WITH_TRIDENT=1` to also `cargo install trident-cli --locked`). Or drop `solana-fuzz/` into your skills directory by hand, or reference `SKILL.md` directly.
 
 ## Worked example: a vault the fuzzer breaks
 
@@ -68,6 +68,10 @@ trident fuzz run fuzz_0 --with-exit-code   # finds the planted invariant violati
 ```
 
 Fixing `withdraw` to `require!(amount <= vault.balance)` + `checked_sub` makes the same fuzz run pass clean (green). That green-to-red flip on one command is the whole point: the skill produces tests that catch real logic bugs example tests never reach.
+
+## What is verified, and what is a documented pattern
+
+The vault example above is verified end to end: it compiles and fuzzes against the exact Trident v0.12.0 API, red on the planted bug and green on the fix. The skill's other capabilities -- native (non-Anchor) programs, multi-instruction sequences, and the across-versions regression flow ([`regression.md`](solana-fuzz/references/regression.md)) -- are documented patterns, not separately shipped runnable examples. Apply them to your program and your installed Trident version, and verify the generated tests the same way: run them, confirm a real bug goes red and the fix goes green. The skill's own instructions reinforce this -- they tell the agent to read the version-specific reference and verify against the Trident source rather than author from memory.
 
 ## Toolchain
 

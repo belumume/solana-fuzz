@@ -158,6 +158,30 @@ planted balance-invariant bug plus a Trident suite that catches it (red), and th
 `require!` + `checked_sub` fix that makes it pass (green). It is compiled and fuzzed against the exact
 v0.12 API; when in doubt about a call, copy from there.
 
+## Verified vs documented
+
+`examples/vault/` is the one flow verified end-to-end against the v0.12.0 API (red on the
+planted bug, green on the `require!` + `checked_sub` fix). The other capabilities -- native
+(non-Anchor) programs, multi-instruction sequences, and the across-versions regression flow
+in `references/regression.md` -- are documented patterns, not separately shipped runnable
+examples. Generate them from the references for your program and your installed Trident
+version, then verify the output the same way the vault was verified: run it, confirm a real
+bug goes red and the fix goes green, before relying on it.
+
+## Troubleshooting (common failure modes)
+
+- Every flow shows 0 successful invocations: the `fuzz_accounts` PDA seeds do not match the
+  program's real seeds. Fix them in `fuzz_accounts.rs` (see `references/accounts.md`).
+- A run exits 0 when you expected a violation: `--with-exit-code` was omitted, so a failing
+  invariant was swallowed in parallel mode. Always run `trident fuzz run fuzz_0 --with-exit-code`.
+- The build dies with an `edition2024` / MSRV error before your code compiles: a transitive
+  dependency resolved newer than the pinned toolchain supports. Pin it
+  (`cargo update -p <crate> --precise <older>`) or use a newer platform-tools
+  (`anchor build -- --tools-version vX.Y`). See `references/setup.md`.
+- A native (non-Anchor) account reads as garbage: wrong discriminator offset. Anchor accounts
+  use offset 8; native accounts have no Anchor discriminator, so pass the program's real
+  layout offset (often 0). See `references/accounts.md`.
+
 ## Provenance
 
 Trident API in this skill is taken from the v0.12.0 source and docs at
