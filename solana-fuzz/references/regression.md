@@ -15,6 +15,6 @@ trident compare <baseline.json> <new.json>
 
 `trident compare` reports the iteration seeds whose outcome differs between the two files. Keep the master seed fixed across both runs (pass it as the optional `[SEED]` argument) so the comparison is apples-to-apples; otherwise the two runs explore different inputs and every seed "differs".
 
-Use it to confirm a fix changed only the intended behavior, or to gate a refactor in CI: a non-empty diff on an unrelated change is a regression to investigate.
+Use it to gate a refactor in CI: a non-empty diff on a change you expected to be behavior-preserving is a regression to investigate.
 
-This surface (the `[fuzz]` regression config, the env var name, the JSON format) is version-specific. Re-read it against the installed Trident with `trident fuzz --help` and `trident compare --help` before relying on the exact flags.
+Unlike the rest of this skill, this regression surface is NOT exercised by the runnable worked example. The `FUZZING_REGRESSION` env var, the `[fuzz]` config, the JSON format, and the `trident compare` subcommand are all version-specific and unverified here. Confirm the exact flag and subcommand names against the installed Trident with `trident fuzz --help` and `trident compare --help` before relying on them.

@@ -30,4 +30,6 @@ let v = self.trident.get_account_with_type::<Vault>(&vault, 8);  // -> Option<Va
 
 `get_account_with_type::<T>(key, discriminator_size)` reads the account data and deserializes `T` after skipping `discriminator_size` bytes (`8` for Anchor's discriminator). It returns `None` when the account does not exist or is smaller than the discriminator, so handle the `Option` during setup rather than unwrapping blindly: the account does not exist until `initialize` has run.
 
+Native (non-Anchor) programs have no 8-byte Anchor discriminator. Pass the program's real account-layout offset (often `0`) instead of `8`, matching how that program lays out its account data. Native programs also have no IDL-generated instruction builder, so you encode the instruction data by hand rather than calling a generated builder.
+
 The state type itself (`Vault` here) is generated into `types.rs` deriving `BorshDeserialize`, so you can deserialize it directly. Do not edit `types.rs` by hand; it is regenerated from the IDL.
