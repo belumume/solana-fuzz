@@ -2,7 +2,7 @@
 
 An MIT-licensed Claude Code / Codex skill that writes [Trident](https://github.com/Ackee-Blockchain/trident) property-based fuzz tests and invariant checks for Solana programs (Anchor and native).
 
-Most Solana programs ship with happy-path example tests and nothing else. Fuzzing, the part that actually surfaces the runtime logic bugs, is the piece that usually gets left manual, so most teams skip it. Trident is the Solana Foundation supported fuzzer from Ackee Blockchain, but wiring it up by hand for every program is real work. This skill does that wiring: point an agent at a program and its IDL, and it scaffolds the Trident harness, writes the per-instruction flows that drive each instruction with random input, and writes the capture-before/after invariant checks that assert the program's state stays correct.
+Most Solana programs ship with happy-path example tests and nothing else. Fuzzing, the part that surfaces the runtime logic bugs, is the piece that usually gets left manual, so most teams skip it. Trident is the Solana Foundation supported fuzzer from Ackee Blockchain, but wiring it up by hand for every program is real work. This skill does that wiring: point an agent at a program and its IDL, and it scaffolds the Trident harness, writes the per-instruction flows that drive each instruction with random input, and writes the capture-before/after invariant checks that assert the program's state stays correct.
 
 This is dynamic, dev-loop property testing. It is not a static auditor and it does not replace example-based tests (LiteSVM, Mollusk, Surfpool); it complements them.
 

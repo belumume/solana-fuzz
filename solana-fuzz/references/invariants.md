@@ -1,4 +1,4 @@
-# references/invariants.md — invariants, and the flag that makes them count
+# references/invariants.md: invariants, and the flag that makes them count
 
 The invariant pattern: capture state before, execute, capture state after, assert the expected property in a dedicated method.
 

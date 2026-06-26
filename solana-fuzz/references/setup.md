@@ -1,4 +1,4 @@
-# references/setup.md — install, init, run, and the gotchas
+# references/setup.md: install, init, run, and the gotchas
 
 Trident is a Linux/macOS tool. On Windows, build inside WSL2 (Ubuntu), not native Windows. The Solana SBF toolchain (`cargo-build-sbf`), Anchor, and Trident do not run natively on Windows.
 
@@ -43,7 +43,7 @@ cargo tree -i crypto-common@0.2.2      # find what pulls it
 cargo update -p blake3 --precise 1.5.5 # blake3 1.5.x uses digest 0.10 / crypto-common 0.1.7
 ```
 
-This is version-volatile: the specific crate and pin change as the ecosystem moves. The procedure is stable: read the `edition2024` error, `cargo tree -i <crate>` to find the chain, `cargo update -p <top-of-chain> --precise <older>` until the edition2024 crate is gone. Re-run `anchor build`; expect to repeat for more than one crate in a bad month. The single highest-leverage pin is `cargo update -p solana-program --precise <older 2.1.x>`, which reverts most of the solana-* transitive graph at once.
+This is version-volatile: the specific crate and pin change as the ecosystem moves. The procedure is stable: read the `edition2024` error, `cargo tree -i <crate>` to find the chain, `cargo update -p <top-of-chain> --precise <older>` until the edition2024 crate is gone. Re-run `anchor build`; expect to repeat for more than one crate in a bad month. The single most effective pin is `cargo update -p solana-program --precise <older 2.1.x>`, which reverts most of the solana-* transitive graph at once.
 
 Two ways to handle it, pick by goal:
 

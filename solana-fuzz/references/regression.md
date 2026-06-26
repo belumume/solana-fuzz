@@ -1,4 +1,4 @@
-# references/regression.md — regression fuzzing across versions
+# references/regression.md: regression fuzzing across versions
 
 Trident can record per-seed results and diff two runs, so you catch behavior that changed between two builds of the same program (a refactor that quietly altered an outcome, or a fix that changed more than intended).
 

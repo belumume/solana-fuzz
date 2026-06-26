@@ -1,4 +1,4 @@
-# references/accounts.md — fuzz accounts, PDA seeds, reading state
+# references/accounts.md: fuzz accounts, PDA seeds, reading state
 
 Trident generates `AccountAddresses` (in `fuzz_accounts.rs`) with one `AddressStorage` per account your instructions touch. You allocate concrete addresses from it inside flows.
 
@@ -8,7 +8,7 @@ Trident generates `AccountAddresses` (in `fuzz_accounts.rs`) with one `AddressSt
 // fresh keypair signer
 let authority = self.fuzz_accounts.authority.insert(&mut self.trident, None);
 
-// PDA — the seeds MUST match the program's #[account(seeds = [...])]
+// PDA: the seeds MUST match the program's #[account(seeds = [...])]
 let vault = self.fuzz_accounts.vault.insert(
     &mut self.trident,
     Some(PdaSeeds {

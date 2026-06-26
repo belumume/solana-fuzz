@@ -1,4 +1,4 @@
-# references/flows.md — flows, driving instructions, random inputs
+# references/flows.md: flows, driving instructions, random inputs
 
 A fuzz test is a struct deriving `FuzzTestMethods` (a `Trident` client plus the generated `AccountAddresses`) and a `#[flow_executor]` impl. Trident generates the instruction builders from your IDL into `types.rs`; you write the flows.
 
@@ -40,4 +40,4 @@ Choose ranges that straddle the program's boundaries. The vault bug only trigger
 
 ## Self-contained flow vs cross-flow state
 
-The simplest robust pattern is one self-contained scenario per flow: allocate fresh accounts, run the full setup plus the operation under test, then check the invariant. That avoids any ordering assumptions between flows. See `../examples/vault/trident-tests/fuzz_0/test_fuzz.rs`. For genuinely stateful sequences, allocate the accounts in `#[init]` and reuse them across flows within the iteration.
+The simplest and most reliable pattern is one self-contained scenario per flow: allocate fresh accounts, run the full setup plus the operation under test, then check the invariant. That avoids any ordering assumptions between flows. See `../examples/vault/trident-tests/fuzz_0/test_fuzz.rs`. For genuinely stateful sequences, allocate the accounts in `#[init]` and reuse them across flows within the iteration.

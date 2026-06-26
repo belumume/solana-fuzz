@@ -24,9 +24,10 @@ impl FuzzTest {
     fn start(&mut self) {}
 
     /// One self-contained scenario per iteration: spin up a fresh vault, give it
-    /// a random balance with `deposit`, then `withdraw` a random amount. The
-    /// withdraw amount spans the full u64 range, so it frequently exceeds the
-    /// balance, which is exactly the case the planted `wrapping_sub` bug breaks.
+    /// a random balance with `deposit` (range 0..1_000_000), then `withdraw` a
+    /// random amount (range 0..2_000_000). The withdraw range reaches well past
+    /// the deposited balance, so it frequently exceeds it, which is exactly the
+    /// case the planted `wrapping_sub` bug breaks.
     #[flow]
     fn deposit_then_withdraw(&mut self) {
         let authority = self.fuzz_accounts.authority.insert(&mut self.trident, None);
