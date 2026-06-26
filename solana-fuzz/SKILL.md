@@ -28,10 +28,11 @@ against the TridentSVM client and catches the runtime logic errors that happy-pa
 example tests never reach.
 
 > Verify before you author. Trident's API changes between minor versions. This
-> skill is pinned to v0.12.0 (see `metadata.trident-version`). Before generating
-> code, confirm the user's installed version and re-read the relevant reference
-> file rather than authoring from memory. If the version differs, check the live
-> source at the URL in `metadata.trident-source`.
+> skill pins to v0.12.0 (see `metadata.trident-version`), the latest stable release;
+> 0.13 is still pre-release (RC) as of this skill's date, so stable is the
+> reproducible choice. Before generating code, confirm the user's installed version
+> and re-read the relevant reference file rather than authoring from memory. If the
+> version differs, check the live source at the URL in `metadata.trident-source`.
 
 ## When to use this skill
 
@@ -54,7 +55,7 @@ example tests never reach.
 
 Anchored to the repo source, not memory:
 
-- Install the CLI: `cargo install trident-cli`. Run a suite from the `trident-tests/`
+- Install the CLI: `cargo install trident-cli --locked`. Run a suite from the `trident-tests/`
   directory: `trident fuzz run fuzz_0 --with-exit-code`. The `--with-exit-code` flag is
   required: without it a failing invariant is silently swallowed in parallel mode and the
   run still exits 0 (see `references/invariants.md`).
