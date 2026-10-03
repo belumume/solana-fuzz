@@ -38,7 +38,7 @@ pub struct Initialize<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + Vault::INIT_SPACE,
+        space = Vault::DISCRIMINATOR.len() + Vault::INIT_SPACE,
         seeds = [b"vault", authority.key().as_ref()],
         bump
     )]

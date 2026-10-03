@@ -11,7 +11,7 @@ description: >
 license: MIT
 compatibility: "claude-code, codex"
 metadata:
-  version: "2026-06"
+  version: "2026-10"
   trident-version: "0.12.0"
   trident-source: "https://github.com/Ackee-Blockchain/trident"
   positioning: "Complements the kit's example-based testing (LiteSVM/Mollusk/Surfpool); distinct from static security-audit skills."
@@ -155,13 +155,23 @@ first; the API is version-specific.
 
 `examples/vault/` is the verified, runnable reference: a tiny Anchor program with a
 planted balance-invariant bug plus a Trident suite that catches it (red), and the
-`require!` + `checked_sub` fix that makes it pass (green). It is compiled and fuzzed against the exact
-v0.12 API; when in doubt about a call, copy from there.
+`require!` + `checked_sub` fix that makes it pass (green). Its Trident calls are compiled and
+fuzzed against the exact v0.12 API; when in doubt about a call, copy from there. The program
+targets `anchor-lang 1.2.0`; see "Verified vs documented" below for exactly what was run on
+which toolchain.
 
 ## Verified vs documented
 
 `examples/vault/` is the one flow verified end-to-end against the v0.12.0 API (red on the
-planted bug, green on the `require!` + `checked_sub` fix). The other capabilities -- native
+planted bug, green on the `require!` + `checked_sub` fix). That red/green run was done on
+**Anchor 0.31.1**; the example program has since been bumped to **`anchor-lang 1.2.0`** so it
+teaches current Anchor idiom (`space = T::DISCRIMINATOR.len() + T::INIT_SPACE`, not the
+pre-1.0 magic `8`). What was re-checked on 1.2.0: the program compiles, and
+`Vault::DISCRIMINATOR.len()` is still 8, so the harness's `get_account_with_type::<Vault>(&vault, 8)`
+offset and the planted-bug logic are unchanged. What was *not* re-run on 1.x: the SBF
+`anchor build` and the `trident fuzz run` red/green cycle. The Trident harness itself does not
+depend on `anchor-lang` (`trident-tests/` pulls only `borsh` + `trident-fuzz`), so the v0.12.0
+API verification is unaffected by the Anchor bump. The other capabilities -- native
 (non-Anchor) programs, multi-instruction sequences, and the across-versions regression flow
 in `references/regression.md` -- are documented patterns, not separately shipped runnable
 examples. Generate them from the references for your program and your installed Trident

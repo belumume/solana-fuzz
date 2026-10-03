@@ -2,16 +2,19 @@
 
 Trident is a Linux/macOS tool. On Windows, build inside WSL2 (Ubuntu), not native Windows. The Solana SBF toolchain (`cargo-build-sbf`), Anchor, and Trident do not run natively on Windows.
 
-## Toolchain (verified working set, 2026-06)
+## Toolchain
 
-| Tool | Version used | Install |
+| Tool | Version | Install |
 |---|---|---|
 | Rust | 1.86.0 (host) | `rustup` (https://rustup.rs) |
-| solana-cli | 2.1.19 (Agave) | `sh -c "$(curl -sSfL https://release.anza.xyz/v2.1.19/install)"` |
-| Anchor | 0.31.0/0.31.1 | `avm install 0.31.1 && avm use 0.31.1` |
+| Anchor | 1.2.0 | `avm install 1.2.0 && avm use 1.2.0` |
 | Trident | 0.12.0 | `cargo install trident-cli --locked` |
 
-`anchor build` invokes `cargo-build-sbf`, which uses the Solana platform-tools' **own bundled Rust (1.79 for solana 2.1.x)**, NOT your host rustup toolchain. This split is the source of the most common build failure (below).
+Anchor 1.x targets Solana 3.x / Agave and drives its own SBF toolchain, so this table no longer pins a separate `solana-cli`. The worked example in `examples/vault/` is pinned to `anchor-lang = "1.2.0"` with a committed `Cargo.lock`.
+
+`anchor build` invokes `cargo-build-sbf`, which uses the Solana platform-tools' **own bundled Rust**, NOT your host rustup toolchain. This split is the source of the most common build failure (below).
+
+**Verification status.** The `examples/vault/` program compiles against `anchor-lang 1.2.0` (host `cargo check`, with the lockfile regenerated from scratch), and `Vault::DISCRIMINATOR.len()` is 8 under 1.2.0, so the discriminator offset the Trident harness reads (`get_account_with_type::<Vault>(&vault, 8)`) is unchanged by the Anchor bump. The end-to-end `anchor build` -> `trident fuzz run` red/green cycle was last run on **Anchor 0.31.1 / solana-cli 2.1.19 (2026-06)** and has not been re-run on the 1.x toolchain. See "Verified vs documented" in `SKILL.md`.
 
 ## Workflow
 
@@ -43,7 +46,7 @@ cargo tree -i crypto-common@0.2.2      # find what pulls it
 cargo update -p blake3 --precise 1.5.5 # blake3 1.5.x uses digest 0.10 / crypto-common 0.1.7
 ```
 
-This is version-volatile: the specific crate and pin change as the ecosystem moves. The procedure is stable: read the `edition2024` error, `cargo tree -i <crate>` to find the chain, `cargo update -p <top-of-chain> --precise <older>` until the edition2024 crate is gone. Re-run `anchor build`; expect to repeat for more than one crate in a bad month. The single most effective pin is `cargo update -p solana-program --precise <older 2.1.x>`, which reverts most of the solana-* transitive graph at once.
+This is version-volatile: the specific crate and pin change as the ecosystem moves. The procedure is stable: read the `edition2024` error, `cargo tree -i <crate>` to find the chain, `cargo update -p <top-of-chain> --precise <older>` until the edition2024 crate is gone. Re-run `anchor build`; expect to repeat for more than one crate in a bad month. On a 0.31-era graph the single most effective pin is `cargo update -p solana-program --precise <older 2.1.x>`, which reverts most of the solana-* transitive graph at once. Under Anchor 1.x there is no monolithic `solana-program` crate to pin — the graph is the granular `solana-account-info`, `solana-pubkey`, `solana-cpi`, ... set — so find the real chain with `cargo tree -i` and pin its top crate instead.
 
 Two ways to handle it, pick by goal:
 
