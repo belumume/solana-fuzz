@@ -1,0 +1,11 @@
+#!/bin/sh
+# Project rule: no Claude identifiers in commits. Strip the attribution
+# trailers and claude.ai session links that tools add by default. Prose that
+# only names the pattern (no session id) is kept.
+msg="$1"
+tmp="$msg.tmp.$$"
+grep -v -i -E '^(Claude-Session:|Co-Authored-By:.*(claude|anthropic))' "$msg" \
+  | sed -E 's#https?://claude\.ai/code/session_[A-Za-z0-9]+[^[:space:])]*##g' > "$tmp"
+# Drop the blank lines left at the end.
+awk 'NF{for(;n>0;n--)print "";print;next}{n++}' "$tmp" > "$msg"
+rm -f "$tmp"
