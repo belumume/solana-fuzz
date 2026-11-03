@@ -24,15 +24,16 @@ function clean(body) {
   if (!body) return body;
   const out = [];
   for (const line of body.split('\n')) {
-    if (MARKER.test(line) || FOOTER.test(line)) continue;
+    // The header goes whether or not its link is one the URL pattern knows.
+    if (MARKER.test(line) || FOOTER.test(line) || HEADER.test(line)) continue;
     const kept = line.replace(LINKED, '$1').replace(BARE, '');
-    if (kept !== line && (HEADER.test(line) || !kept.trim())) continue;
+    if (kept !== line && !kept.trim()) continue;
     out.push(kept);
   }
   // Drop the blank lines and orphaned "---" rule the footer leaves at the end,
-  // and the blank lines the header leaves at the start.
+  // and the blank lines and "---" rule the header leaves at the start.
   while (out.length && /^\s*(---)?\s*$/.test(out[out.length - 1])) out.pop();
-  while (out.length && !out[0].trim()) out.shift();
+  while (out.length && /^\s*(---)?\s*$/.test(out[0])) out.shift();
   return out.join('\n');
 }
 
