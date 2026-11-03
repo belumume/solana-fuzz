@@ -34,9 +34,9 @@ function clean(body) {
   }
   // Text with nothing to strip is left exactly as written.
   if (!touched) return body;
-  // At each end, drop removed lines and blank lines, and a "---" rule only when
-  // it sat between removed text and that end (the footer's or header's own
-  // rule). A rule of the author's own, with nothing removed beyond it, stays.
+  // At each end, drop removed lines and blank lines, and one "---" rule only
+  // when it sat between removed text and that end (the footer's or header's
+  // own rule). A rule of the author's own, with nothing removed beyond it, stays.
   trim(out, true);
   trim(out, false);
   return out.filter((l) => l !== null).join('\n');
@@ -47,7 +47,8 @@ function trim(lines, atEnd) {
   while (lines.length) {
     const l = lines[atEnd ? lines.length - 1 : 0];
     if (l === null) cut = true;
-    else if (!/^\s*$/.test(l) && !(cut && /^\s*---\s*$/.test(l))) break;
+    else if (cut && /^\s*---\s*$/.test(l)) cut = false; // one rule per cut, no more
+    else if (!/^\s*$/.test(l)) break;
     if (atEnd) lines.pop(); else lines.shift();
   }
 }
