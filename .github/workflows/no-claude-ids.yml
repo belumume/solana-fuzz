@@ -45,7 +45,7 @@ jobs:
           fi
           # Trailers are matched only at the start of a line, so a commit
           # message that merely mentions one in prose is not failed.
-          bad=$(git log --format='%h%n%B' "$@" | grep -i -E '^[[:space:]]*(Claude-Session:|Co-Authored-By:.*(claude|anthropic))|https?://(www\.)?claude\.ai([^[:alnum:].-]|\.([^[:alnum:]]|$)|$)' || true)
+          bad=$(git log --format='%h%n%B' "$@" | grep -i -E '^[[:space:]]*(Claude-Session:|Co-Authored-By:.*(claude|anthropic))|https?://(www\.)?claude\.ai([^[:alnum:].-]|\.([^[:alnum:]]|$)|$)|(^|[^[:alnum:]./-])(www\.)?claude\.ai/' || true)
           if [ -n "$bad" ]; then
             echo "Commits carry Claude identifiers (project rule: none):"
             echo "$bad"
