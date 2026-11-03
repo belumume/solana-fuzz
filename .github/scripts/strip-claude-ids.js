@@ -23,13 +23,18 @@ const HEADER = /^\s*_?Requested by\b.*\bproject thread\b/i;
 function clean(body) {
   if (!body) return body;
   const out = [];
+  let touched = false;
   for (const line of body.split('\n')) {
     // The header goes whether or not its link is one the URL pattern knows.
-    if (MARKER.test(line) || FOOTER.test(line) || HEADER.test(line)) continue;
+    if (MARKER.test(line) || FOOTER.test(line) || HEADER.test(line)) { touched = true; continue; }
     const kept = line.replace(LINKED, '$1').replace(BARE, '');
+    if (kept !== line) touched = true;
     if (kept !== line && !kept.trim()) continue;
     out.push(kept);
   }
+  // Text with nothing to strip is left exactly as written, including a "---"
+  // rule of its own at either end.
+  if (!touched) return body;
   // Drop the blank lines and orphaned "---" rule the footer leaves at the end,
   // and the blank lines and "---" rule the header leaves at the start.
   while (out.length && /^\s*(---)?\s*$/.test(out[out.length - 1])) out.pop();
