@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Reject Claude trailers and session links in new commits
+      - name: Reject Claude trailers and claude.ai links in new commits
         env:
           EVENT: ${{ github.event_name }}
           BASE_REF: ${{ github.event.pull_request.base.ref }}
@@ -45,7 +45,7 @@ jobs:
           fi
           # Trailers are matched only at the start of a line, so a commit
           # message that merely mentions one in prose is not failed.
-          bad=$(git log --format='%h%n%B' "$@" | grep -i -E '^[[:space:]]*(Claude-Session:|Co-Authored-By:.*(claude|anthropic))|claude\.ai/code/session_[A-Za-z0-9]' || true)
+          bad=$(git log --format='%h%n%B' "$@" | grep -i -E '^[[:space:]]*(Claude-Session:|Co-Authored-By:.*(claude|anthropic))|https?://(www\.)?claude\.ai([^[:alnum:].-]|\.([^[:alnum:]]|$)|$)|(^|[^[:alnum:]./-])(www\.)?claude\.ai/' || true)
           if [ -n "$bad" ]; then
             echo "Commits carry Claude identifiers (project rule: none):"
             echo "$bad"
