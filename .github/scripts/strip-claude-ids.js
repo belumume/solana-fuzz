@@ -22,24 +22,34 @@ const HEADER = /^\s*_?Requested by\b.*\bproject thread\b/i;
 
 function clean(body) {
   if (!body) return body;
+  // A removed line leaves a null, so the trim below knows where text was cut.
   const out = [];
   let touched = false;
   for (const line of body.split('\n')) {
     // The header goes whether or not its link is one the URL pattern knows.
-    if (MARKER.test(line) || FOOTER.test(line) || HEADER.test(line)) { touched = true; continue; }
+    if (MARKER.test(line) || FOOTER.test(line) || HEADER.test(line)) { touched = true; out.push(null); continue; }
     const kept = line.replace(LINKED, '$1').replace(BARE, '');
     if (kept !== line) touched = true;
-    if (kept !== line && !kept.trim()) continue;
-    out.push(kept);
+    out.push(kept !== line && !kept.trim() ? null : kept);
   }
-  // Text with nothing to strip is left exactly as written, including a "---"
-  // rule of its own at either end.
+  // Text with nothing to strip is left exactly as written.
   if (!touched) return body;
-  // Drop the blank lines and orphaned "---" rule the footer leaves at the end,
-  // and the blank lines and "---" rule the header leaves at the start.
-  while (out.length && /^\s*(---)?\s*$/.test(out[out.length - 1])) out.pop();
-  while (out.length && /^\s*(---)?\s*$/.test(out[0])) out.shift();
-  return out.join('\n');
+  // At each end, drop removed lines and blank lines, and a "---" rule only when
+  // it sat between removed text and that end (the footer's or header's own
+  // rule). A rule of the author's own, with nothing removed beyond it, stays.
+  trim(out, true);
+  trim(out, false);
+  return out.filter((l) => l !== null).join('\n');
+}
+
+function trim(lines, atEnd) {
+  let cut = false;
+  while (lines.length) {
+    const l = lines[atEnd ? lines.length - 1 : 0];
+    if (l === null) cut = true;
+    else if (!/^\s*$/.test(l) && !(cut && /^\s*---\s*$/.test(l))) break;
+    if (atEnd) lines.pop(); else lines.shift();
+  }
 }
 
 async function fix(kind, item, update, core) {
